@@ -12,8 +12,24 @@ app.use("/customer",session({secret:"fingerprint_customer",resave: true, saveUni
 
 app.use("/customer/auth/*", function auth(req,res,next){
 //Write the authenication mechanism here
+// Vérifier si la session contient un jeton d'authentification
+    if (req.session.authorization) {
+        let token = req.session.authorization['accessToken']; // Récupérer le jeton d'accès
+
+        // Valider le jeton JWT
+        jwt.verify(token, "access", (err, user) => {
+            if (!err) {
+                req.user = user; // Stocker les informations de l'utilisateur dans la requête
+                next(); // Passer au middleware ou à la route suivante
+            } else {
+                return res.status(403).json({ message: "Utilisateur non authentifié" });
+            }
+        });
+    } else {
+        return res.status(403).json({ message: "Utilisateur non connecté" });
+    }
 });
- 
+
 const PORT =5000;
 
 app.use("/customer", customer_routes);
