@@ -145,38 +145,69 @@ public_users.get('/author/:author', async function (req, res) {
 
 
 // Get all books based on title
-public_users.get('/title/:title',function (req, res) {
-  //Write your code here
-  const titleParam = req.params.title.toLowerCase();
-  const keys = Object.keys(books);
-  const matchingBooks = [];
+// public_users.get('/title/:title',function (req, res) {
+//   //Write your code here
+//   const titleParam = req.params.title.toLowerCase();
+//   const keys = Object.keys(books);
+//   const matchingBooks = [];
 
-  // Parcourir tous les livres pour trouver les titres correspondants
-  keys.forEach(key => {
-    if (books[key].title.toLowerCase() === titleParam) {
-      matchingBooks.push({ isbn: key, ...books[key] });
+//   // Parcourir tous les livres pour trouver les titres correspondants
+//   keys.forEach(key => {
+//     if (books[key].title.toLowerCase() === titleParam) {
+//       matchingBooks.push({ isbn: key, ...books[key] });
+//     }
+//   });
+
+//   if (matchingBooks.length > 0) {
+//     return res.status(200).send(JSON.stringify(matchingBooks, null, 4));
+//   } else {
+//     return res.status(404).json({ message: "Aucun livre trouvé avec ce titre" });
+//   }
+// });
+
+// //  Get book review
+// public_users.get('/review/:isbn',function (req, res) {
+//   //Write your code here
+//   const isbn = req.params.isbn;
+//   const book = books[isbn];
+
+//   if (book) {
+//     // Renvoie uniquement l'objet contenant les avis du livre
+//     return res.status(200).send(JSON.stringify(book.reviews, null, 4));
+//   } else {
+//     return res.status(404).json({ message: "Livre non trouvé" });
+//   }
+// });
+
+// Tâche 13 : Obtenir les détails du livre en fonction du Titre en utilisant des Promesses ou async-await
+public_users.get('/title/:title', async function (req, res) {
+    const titleParam = req.params.title.toLowerCase();
+  
+    // Création d'une promesse pour simuler une opération asynchrone de filtrage par titre
+    const getBooksByTitlePromise = new Promise((resolve, reject) => {
+      const keys = Object.keys(books);
+      const matchingBooks = [];
+  
+      keys.forEach(key => {
+        if (books[key].title.toLowerCase() === titleParam) {
+          matchingBooks.push({ isbn: key, ...books[key] });
+        }
+      });
+  
+      if (matchingBooks.length > 0) {
+        resolve(matchingBooks);
+      } else {
+        reject("Aucun livre trouvé avec ce titre.");
+      }
+    });
+  
+    try {
+      // Attente de la résolution de la promesse
+      const booksFound = await getBooksByTitlePromise;
+      return res.status(200).send(JSON.stringify(booksFound, null, 4));
+    } catch (error) {
+      return res.status(404).json({ message: error });
     }
   });
-
-  if (matchingBooks.length > 0) {
-    return res.status(200).send(JSON.stringify(matchingBooks, null, 4));
-  } else {
-    return res.status(404).json({ message: "Aucun livre trouvé avec ce titre" });
-  }
-});
-
-//  Get book review
-public_users.get('/review/:isbn',function (req, res) {
-  //Write your code here
-  const isbn = req.params.isbn;
-  const book = books[isbn];
-
-  if (book) {
-    // Renvoie uniquement l'objet contenant les avis du livre
-    return res.status(200).send(JSON.stringify(book.reviews, null, 4));
-  } else {
-    return res.status(404).json({ message: "Livre non trouvé" });
-  }
-});
-
+  
 module.exports.general = public_users;
