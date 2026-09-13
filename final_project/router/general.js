@@ -92,25 +92,57 @@ public_users.get('/isbn/:isbn', async function (req, res) {
   
   
 // Get book details based on author
-public_users.get('/author/:author',function (req, res) {
-  //Write your code here
-  const authorParam = req.params.author.toLowerCase();
-  const keys = Object.keys(books); // Indice 1 : Obtenir toutes les clés
-  const matchingBooks = [];
+// public_users.get('/author/:author',function (req, res) {
+//   //Write your code here
+//   const authorParam = req.params.author.toLowerCase();
+//   const keys = Object.keys(books); // Indice 1 : Obtenir toutes les clés
+//   const matchingBooks = [];
 
-  // Indice 2 : Itérer à travers le tableau 'books'
-  keys.forEach(key => {
-    if (books[key].author.toLowerCase() === authorParam) {
-      matchingBooks.push({ isbn: key, ...books[key] });
+//   // Indice 2 : Itérer à travers le tableau 'books'
+//   keys.forEach(key => {
+//     if (books[key].author.toLowerCase() === authorParam) {
+//       matchingBooks.push({ isbn: key, ...books[key] });
+//     }
+//   });
+
+//   if (matchingBooks.length > 0) {
+//     return res.status(200).send(JSON.stringify(matchingBooks, null, 4));
+//   } else {
+//     return res.status(404).json({ message: "Aucun livre trouvé pour cet auteur" });
+//   }
+// });
+
+// Tâche 12 : Obtenir les détails du livre en fonction de l'Auteur en utilisant des Promesses ou async-await
+public_users.get('/author/:author', async function (req, res) {
+    const authorParam = req.params.author.toLowerCase();
+  
+    // Création d'une promesse pour simuler une opération asynchrone de filtrage
+    const getBooksByAuthorPromise = new Promise((resolve, reject) => {
+      const keys = Object.keys(books);
+      const matchingBooks = [];
+  
+      keys.forEach(key => {
+        if (books[key].author.toLowerCase() === authorParam) {
+          matchingBooks.push({ isbn: key, ...books[key] });
+        }
+      });
+  
+      if (matchingBooks.length > 0) {
+        resolve(matchingBooks);
+      } else {
+        reject("Aucun livre trouvé pour cet auteur.");
+      }
+    });
+  
+    try {
+      // Attente de la résolution de la promesse
+      const booksFound = await getBooksByAuthorPromise;
+      return res.status(200).send(JSON.stringify(booksFound, null, 4));
+    } catch (error) {
+      return res.status(404).json({ message: error });
     }
   });
 
-  if (matchingBooks.length > 0) {
-    return res.status(200).send(JSON.stringify(matchingBooks, null, 4));
-  } else {
-    return res.status(404).json({ message: "Aucun livre trouvé pour cet auteur" });
-  }
-});
 
 // Get all books based on title
 public_users.get('/title/:title',function (req, res) {
